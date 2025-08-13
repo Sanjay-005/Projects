@@ -1,11 +1,15 @@
 import { Link } from "react-router-dom";
 
-function ProductsList({products}){
+function ProductsList({ products, loading, error }){
+    if(loading) return <div>Loading products...</div>;
+    if(error) return <div style={{ color: "red" }}>{error}</div>
+    if(!products || products.length === 0) return <div>No products available!</div>
+
     return (
         <div>
-            <h1>Our Products</h1>
+            <h2>Our Products</h2>
             <ul>
-                {products.map(product => (
+                {products.map((product) => (
                     <li key={product.id}>
                         <Link to={`/product/${product.id}`}>
                           {product.name} - ₹{product.price}

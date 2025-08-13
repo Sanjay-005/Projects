@@ -1,8 +1,32 @@
 import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-function ProductDetails({products, addToCart}) {
+function ProductDetails({ addToCart }) {
     const { id } = useParams();//useParams() returns object and variable id stores the id as a string from the returned object!
-    const product = products.find(p => p.id === parseInt(id));//returns the first product where the p.id equals the parsed id, if none match it will be undefined!!
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error,setError] = useState(null);
+
+    useEffect(() => {
+        setLoading(true);
+        axios.get(`http://localhost:5000/api/products/${id}`)
+          .then((res) => {
+            setProduct(res.data);
+            setError(null);
+          })
+          .catch((err) => {
+            console.error("Failed to load product:", err);
+            setError("Product not found or failed to load.");
+
+          })
+          .finally(() => setLoading(false));
+    }, [id]); //Runs whenever id changes (including first render).
+
+    if(loading) return <div>Loading product...</div>;
+
+    if(error) return <h2 style={{ color: "red" }}>{error}</h2>;
+
     if(!product) return <h2>Product not found</h2>;
 
     return (
@@ -11,8 +35,7 @@ function ProductDetails({products, addToCart}) {
             <p>Price: ₹{product.price}</p>
             <button onClick={() => addToCart(product)}>Add to Cart</button>
         </div>
-    );
-
+    )
 
 
 
