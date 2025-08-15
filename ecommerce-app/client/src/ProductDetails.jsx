@@ -32,10 +32,19 @@ function ProductDetails({ addToCart }) {
     return (
         <div>
             <h2>{product.name}</h2>
+            {product.image && (
+              <img 
+                src={product.image}
+                alt={product.name}
+                style={{ width: 300, height: 350, objectFit: "cover", display: "block", marginBottom: 12 }}
+              
+              
+              />
+            )}
             <p>Price: ₹{product.price}</p>
             <button onClick={() => addToCart(product)}>Add to Cart</button>
         </div>
-    )
+    );
 
 
 
