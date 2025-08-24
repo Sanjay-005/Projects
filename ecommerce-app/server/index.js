@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url"; //needed to get the current file’s absolute path in ES modules
 import fs from "fs/promises";
+import { registerUser, loginUser } from "./users.js";
 
 dotenv.config();
 
@@ -108,6 +109,9 @@ app.post("/api/products", async (req, res) => {
   res.status(201).json(newProduct);
 
 });
+
+app.post("/api/register", registerUser);
+app.post("/api/login", loginUser);
 
 app.put("/api/products/:id", async (req, res) => {
   const id = Number(req.params.id);

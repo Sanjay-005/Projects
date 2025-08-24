@@ -1,5 +1,32 @@
 [
-  { "id": 1, "name": "Nord-buds-2-airpods", "price": 2500, "image": "https://static.digit.in/product/product-7a460ac8a6.jpeg" },
-  { "id": 2, "name": "one-plus-11r", "price": 40000, "image": "https://in.static.webuy.com/product_images/Phones/Phones%20Android/SONEPLU11R16256BUNLB_l.jpg" },
-  { "id": 3, "name": "Acer-laptop", "price": 90000, "image": "https://m.media-amazon.com/images/I/51GGNToj7aL._UF1000,1000_QL80_.jpg" }
+  {
+    "id": 1,
+    "name": "Nord-buds-2-airpods",
+    "price": 2500,
+    "image": "https://static.digit.in/product/product-7a460ac8a6.jpeg"
+  },
+  {
+    "id": 2,
+    "name": "one-plus-11r",
+    "price": 40000,
+    "image": "https://in.static.webuy.com/product_images/Phones/Phones%20Android/SONEPLU11R16256BUNLB_l.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Acer-laptop",
+    "price": 90000,
+    "image": "https://m.media-amazon.com/images/I/51GGNToj7aL._UF1000,1000_QL80_.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Titan Octane Stainless Steel Strap Watch",
+    "price": 9200,
+    "image": "https://m.media-amazon.com/images/I/61RvUXvDRWL._SX679_.jpg"
+  },
+  {
+    "id": 5,
+    "name": "One piece t-shirt",
+    "price": 1300,
+    "image": "https://images-cdn.ubuy.co.in/65441e1076a4bc55582a506a-one-piece-luffy-bounty-t-shirt.jpg"
+  }
 ]
