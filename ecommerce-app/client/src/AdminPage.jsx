@@ -1,27 +1,23 @@
-// client/src/AdminPage.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react"; // Add useContext
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { ProductContext } from "./ProductContext"; // Import context
 
 const API = "http://localhost:5000/api/products";
 
 export default function AdminPage() {
+  const { refreshProducts } = useContext(ProductContext); // Get refresh function from context
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // add form
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState("");
-
-  // edit state
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [editImage, setEditImage] = useState("");
 
-  // load items
   useEffect(() => {
     refresh();
   }, []);
@@ -29,7 +25,9 @@ export default function AdminPage() {
   function refresh() {
     setLoading(true);
     axios
-      .get(API)
+      .get(API, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
       .then((res) => {
         setItems(res.data);
         setError(null);
@@ -44,20 +42,23 @@ export default function AdminPage() {
       const payload = {
         name: name.trim(),
         price: Number(price),
-        image: image.trim() || undefined
+        image: image.trim() || undefined,
       };
-      const { data } = await axios.post(API, payload);
+      const { data } = await axios.post(API, payload, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       setItems((prev) => [...prev, data]);
       setName("");
       setPrice("");
       setImage("");
+      refreshProducts(); // Update the global products state for shop page
     } catch (err) {
       alert(err?.response?.data?.message || "Failed to add product");
     }
   }
 
   function startEdit(p) {
-    setEditingId(p.id);
+    setEditingId(p._id);
     setEditName(p.name);
     setEditPrice(String(p.price));
     setEditImage(p.image || "");
@@ -68,11 +69,14 @@ export default function AdminPage() {
       const payload = {
         name: editName.trim(),
         price: Number(editPrice),
-        image: editImage.trim() || undefined
+        image: editImage.trim() || undefined,
       };
-      const { data } = await axios.put(`${API}/${id}`, payload);
-      setItems((prev) => prev.map((it) => (it.id === id ? data : it)));
+      const { data } = await axios.put(`${API}/${id}`, payload, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setItems((prev) => prev.map((it) => (it._id === id ? data : it)));
       cancelEdit();
+      refreshProducts(); // Update the global products state for shop page
     } catch (err) {
       alert(err?.response?.data?.message || "Failed to update product");
     }
@@ -88,10 +92,13 @@ export default function AdminPage() {
   async function handleDelete(id) {
     if (!confirm("Delete this product?")) return;
     try {
-      await axios.delete(`${API}/${id}`);
-      setItems((prev) => prev.filter((it) => it.id !== id));
-    } catch {
-      alert("Failed to delete product");
+      await axios.delete(`${API}/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setItems((prev) => prev.filter((it) => it._id !== id));
+      refreshProducts(); // Update the global products state for shop page
+    } catch (err) {
+      alert(err?.response?.data?.message || "Failed to delete product");
     }
   }
 
@@ -102,7 +109,6 @@ export default function AdminPage() {
         <Link to="/">← Back to Shop</Link>
       </header>
 
-      {/* Add form */}
       <form onSubmit={handleAdd} style={{ margin: "16px 0", display: "grid", gap: 8, maxWidth: 420 }}>
         <input
           placeholder="Name"
@@ -126,7 +132,6 @@ export default function AdminPage() {
         <button type="submit">Add Product</button>
       </form>
 
-      {/* List */}
       {loading ? (
         <div>Loading…</div>
       ) : error ? (
@@ -136,8 +141,8 @@ export default function AdminPage() {
       ) : (
         <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 12 }}>
           {items.map((p) => (
-            <li key={p.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
-              {editingId === p.id ? (
+            <li key={p._id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
+              {editingId === p._id ? (
                 <div style={{ display: "grid", gap: 8 }}>
                   <input value={editName} onChange={(e) => setEditName(e.target.value)} />
                   <input
@@ -152,7 +157,7 @@ export default function AdminPage() {
                     onChange={(e) => setEditImage(e.target.value)}
                   />
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button type="button" onClick={() => saveEdit(p.id)}>
+                    <button type="button" onClick={() => saveEdit(p._id)}>
                       Save
                     </button>
                     <button type="button" onClick={cancelEdit}>
@@ -173,7 +178,7 @@ export default function AdminPage() {
                   <div>₹{p.price}</div>
                   <div style={{ display: "flex", gap: 8 }}>
                     <button type="button" onClick={() => startEdit(p)}>Edit</button>
-                    <button type="button" onClick={() => handleDelete(p.id)}>Delete</button>
+                    <button type="button" onClick={() => handleDelete(p._id)}>Delete</button>
                   </div>
                 </div>
               )}

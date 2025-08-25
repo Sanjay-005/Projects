@@ -1,44 +1,27 @@
-import {Link} from "react-router-dom";
-
-function CartPage({cart, removeFromCart}) {
-    const total = cart.reduce((s, p) => s + (p.price || 0), 0);
-
-    return (
-        <div>
-            <h2>Your Cart</h2>
-            {cart.length === 0 ? (
-                <div>
-                    Cart is empty.<Link to="/">Go shopping</Link>
-
-                </div>
-
-            ) : (
-                <div>
-                    <ul>
-                      {cart.map((item, idx) => (
-                        <li key={`${item.id}-${idx}`}>
-                            {item.name} - ₹{item.price}{" "}
-                            <button onClick={() => removeFromCart(idx)}>Remove</button>
-
-                        </li>
-                      ))}
-                    </ul>
-                    
-                    <div>
-                        <strong>Total: ₹{total}</strong>
-
-                    </div>
-
-                    <div style={{ marginTop: 10 }}>
-                        <button onClick={() => alert("Checkout flow not implemented yet")}>Procced to Checkout</button>
-
-                    </div>
-                
-                </div>
-            )}
-        </div>
-    );
-
+// src/CartPage.jsx
+function CartPage({ cart, removeFromCart }) {
+  return (
+    <div>
+      <h2>Your Cart</h2>
+      {cart.length === 0 ? (
+        <p>Your cart is empty.</p>
+      ) : (
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          {cart.map((item, index) => (
+            <li key={index} style={{ borderBottom: "1px solid #ddd", padding: "8px 0" }}>
+              {item.name} - ₹{item.price}
+              <button
+                style={{ marginLeft: 8 }}
+                onClick={() => removeFromCart(index)}
+              >
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 export default CartPage;
