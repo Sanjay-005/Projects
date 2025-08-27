@@ -1,12 +1,11 @@
-import { useEffect, useState, useContext } from "react"; // Add useContext
+import { useEffect, useState, useContext } from "react"; 
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { ProductContext } from "./ProductContext"; // Import context
-
+import { ProductContext } from "./ProductContext"; 
 const API = "http://localhost:5000/api/products";
 
 export default function AdminPage() {
-  const { refreshProducts } = useContext(ProductContext); // Get refresh function from context
+  const { refreshProducts } = useContext(ProductContext);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

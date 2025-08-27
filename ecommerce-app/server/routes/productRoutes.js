@@ -1,11 +1,9 @@
-// server/routes/productRoutes.js
 import express from "express";
 import Product from "../models/Product.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// GET all products
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find({});
@@ -15,7 +13,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET product by ID
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -26,7 +23,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// POST new product
 router.post("/", protect, async (req, res) => {
   try {
     const { name, price, image } = req.body;
@@ -39,7 +35,6 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
-// PUT update product
 router.put("/:id", protect, async (req, res) => {
   try {
     const { name, price, image } = req.body;
@@ -55,7 +50,6 @@ router.put("/:id", protect, async (req, res) => {
   }
 });
 
-// DELETE product
 router.delete("/:id", protect, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
