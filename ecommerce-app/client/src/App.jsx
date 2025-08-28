@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import axios from "axios";
 import ProductsList from "./ProductsList";
+import ProductSearch from "./ProductSearch";/** */
 import ProductDetails from "./ProductDetails";
 import CartPage from "./CartPage";
 import AdminPage from "./AdminPage";
@@ -33,7 +34,7 @@ function App() {
   return (
     <ProductProvider> {/* Wrap the app with ProductProvider */}
       <div style={{ padding: 20 }}>
-        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {/* <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h1>
             <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
               My E-Commerce
@@ -44,7 +45,20 @@ function App() {
             <Link to="/admin">Admin</Link>
             <Link to="/cart">Cart ({cart.length})</Link>
           </nav>
-        </header>
+        </header> */}
+        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+  <h1>
+    <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+      My E-Commerce
+    </Link>
+  </h1>
+  <ProductSearch />
+  <nav style={{ display: "flex", gap: 16 }}>
+    <Link to="/login">Login</Link>
+    <Link to="/admin">Admin</Link>
+    <Link to="/cart">Cart ({cart.length})</Link>
+  </nav>
+</header>
 
         <Routes>
           <Route path="/" element={<ProductsList />} /> {/* No props needed now */}
