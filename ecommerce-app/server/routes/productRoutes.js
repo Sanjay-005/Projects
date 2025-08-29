@@ -69,9 +69,32 @@ import { SearchClient, AzureKeyCredential } from "@azure/search-documents";
 
 const router = express.Router();
 
+// router.get("/", async (req, res) => {
+//   try {
+//     const products = await Product.find({});
+//     res.json(products);
+//   } catch (err) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
 router.get("/", async (req, res) => {
   try {
-    const products = await Product.find({});
+    const { category, minPrice, maxPrice, sort } = req.query;
+    const filter = {};
+    if (category) filter.category = category;
+    if (minPrice) filter.price = { ...filter.price, $gte: Number(minPrice) };
+    if (maxPrice) filter.price = { ...filter.price, $lte: Number(maxPrice) };
+
+    let query = Product.find(filter);
+
+    // Sorting
+    if (sort === "price_asc") query = query.sort({ price: 1 });
+    else if (sort === "price_desc") query = query.sort({ price: -1 });
+    else if (sort === "name_asc") query = query.sort({ name: 1 });
+    else if (sort === "name_desc") query = query.sort({ name: -1 });
+
+    const products = await query.exec();
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: "Server error" });

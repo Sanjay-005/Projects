@@ -1,11 +1,12 @@
-import { useEffect, useState, useContext } from "react"; 
+import { useEffect, useState, useContext } from "react"; // Add useContext
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { ProductContext } from "./ProductContext"; 
+import { ProductContext } from "./ProductContext"; // Import context
+
 const API = "http://localhost:5000/api/products";
 
 export default function AdminPage() {
-  const { refreshProducts } = useContext(ProductContext);
+  const { refreshProducts } = useContext(ProductContext); // Get refresh function from context
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,6 +18,12 @@ export default function AdminPage() {
   const [editPrice, setEditPrice] = useState("");
   const [editImage, setEditImage] = useState("");
 
+
+  const [category, setCategory] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+
+  
+  
   useEffect(() => {
     refresh();
   }, []);
@@ -42,6 +49,7 @@ export default function AdminPage() {
         name: name.trim(),
         price: Number(price),
         image: image.trim() || undefined,
+        category: category.trim(),/** */
       };
       const { data } = await axios.post(API, payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -61,6 +69,7 @@ export default function AdminPage() {
     setEditName(p.name);
     setEditPrice(String(p.price));
     setEditImage(p.image || "");
+    setEditCategory(p.category || "");/** */
   }
 
   async function saveEdit(id) {
@@ -69,6 +78,7 @@ export default function AdminPage() {
         name: editName.trim(),
         price: Number(editPrice),
         image: editImage.trim() || undefined,
+        category: editCategory.trim(),/** */
       };
       const { data } = await axios.put(`${API}/${id}`, payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -86,6 +96,7 @@ export default function AdminPage() {
     setEditName("");
     setEditPrice("");
     setEditImage("");
+    setEditCategory("");/** */
   }
 
   async function handleDelete(id) {
@@ -128,6 +139,12 @@ export default function AdminPage() {
           value={image}
           onChange={(e) => setImage(e.target.value)}
         />
+        <input /** */
+          placeholder="Category"
+          value={category}
+          onChange={e => setCategory(e.target.value)}
+          required
+        />
         <button type="submit">Add Product</button>
       </form>
 
@@ -154,6 +171,12 @@ export default function AdminPage() {
                     placeholder="Image URL"
                     value={editImage}
                     onChange={(e) => setEditImage(e.target.value)}
+                  />
+                  <input
+                    placeholder="Category"
+                    onChange={e => setEditCategory(e.target.value)}
+                    value={editCategory}
+                    required
                   />
                   <div style={{ display: "flex", gap: 8 }}>
                     <button type="button" onClick={() => saveEdit(p._id)}>
