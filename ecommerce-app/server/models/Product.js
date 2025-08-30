@@ -10,7 +10,6 @@
 
 import mongoose from "mongoose";
 
-// models/Product.js
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true, min: 0 },
