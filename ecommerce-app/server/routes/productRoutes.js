@@ -62,6 +62,13 @@
 
 // export default router;
 
+
+
+
+
+
+
+
 import express from "express";
 import Product from "../models/Product.js";
 import { protect } from "../middleware/authMiddleware.js";
@@ -69,15 +76,7 @@ import { SearchClient, AzureKeyCredential } from "@azure/search-documents";
 
 const router = express.Router();
 
-// router.get("/", async (req, res) => {
-//   try {
-//     const products = await Product.find({});
-//     res.json(products);
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
+// GET all products with filters/sort
 router.get("/", async (req, res) => {
   try {
     const { category, minPrice, maxPrice, sort } = req.query;
@@ -101,6 +100,17 @@ router.get("/", async (req, res) => {
   }
 });
 
+// ✅ New route to fetch distinct categories
+router.get("/categories", async (req, res) => {
+  try {
+    const categories = await Product.distinct("category");
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// GET single product
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -111,11 +121,14 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// CREATE product
 router.post("/", protect, async (req, res) => {
   try {
-    const { name, price, image } = req.body;
-    if (!name || !price) return res.status(400).json({ message: "Name and price required" });
-    const product = new Product({ name, price, image });
+    const { name, price, image, category } = req.body;
+    if (!name || !price || !category) {
+      return res.status(400).json({ message: "Name, price, and category required" });
+    }
+    const product = new Product({ name, price, image, category });
     await product.save();
 
     // --- Sync with Azure Search ---
@@ -130,11 +143,11 @@ router.post("/", protect, async (req, res) => {
           name: product.name,
           price: product.price,
           image: product.image,
+          category: product.category,
         }]);
       }
     } catch (azureErr) {
       console.error("Azure Search sync failed:", azureErr.message);
-      // Optionally: don't fail the whole request if Azure sync fails
     }
     // --- End sync ---
 
@@ -144,12 +157,13 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
+// UPDATE product
 router.put("/:id", protect, async (req, res) => {
   try {
-    const { name, price, image } = req.body;
+    const { name, price, image, category } = req.body;
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      { name, price, image },
+      { name, price, image, category },
       { new: true, runValidators: true }
     );
     if (!product) return res.status(404).json({ message: "Product not found" });
@@ -159,6 +173,7 @@ router.put("/:id", protect, async (req, res) => {
   }
 });
 
+// DELETE product
 router.delete("/:id", protect, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
@@ -168,6 +183,5 @@ router.delete("/:id", protect, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 export default router;

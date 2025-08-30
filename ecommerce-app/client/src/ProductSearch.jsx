@@ -52,6 +52,7 @@ export default function ProductSearch() {
                   <img src={s.image} alt={s.name} style={{ width: 40, height: 40, objectFit: "cover", marginRight: 8 }} />
                 )}
                 {s.name} - ₹{s.price}
+                {s.category && <span style={{ color: "#666", marginLeft: 6 }}>({s.category})</span>}
               </Link>
             </li>
           ))}

@@ -36,6 +36,20 @@
 // export default ProductsList;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -48,27 +62,27 @@ export default function ProductsList() {
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState("");
 
-  // Fetch categories for dropdown
+  // ✅ Fetch categories from backend
   useEffect(() => {
-    axios.get("http://localhost:5000/api/products")
-      .then(res => {
-        const cats = Array.from(new Set(res.data.map(p => p.category))).filter(Boolean);
-        setCategories(cats);
-      });
+    axios.get("http://localhost:5000/api/products/categories")
+      .then(res => setCategories(res.data))
+      .catch(() => setCategories([]));
   }, []);
 
-  // Fetch products with filters/sort
+  // ✅ Fetch products with filters/sort
   const fetchProducts = () => {
     const params = {};
     if (category) params.category = category;
     if (minPrice) params.minPrice = minPrice;
     if (maxPrice) params.maxPrice = maxPrice;
     if (sort) params.sort = sort;
+
     axios.get("http://localhost:5000/api/products", { params })
-      .then(res => setProducts(res.data));
+      .then(res => setProducts(res.data))
+      .catch(() => setProducts([]));
   };
 
-  // Fetch all products on mount
+  // ✅ Fetch all products on mount
   useEffect(() => {
     fetchProducts();
     // eslint-disable-next-line
