@@ -127,7 +127,7 @@ export default function ProductsList() {
                 <img
                   src={product.image}
                   alt={product.name}
-                  style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 4 }}
+                  style={{ width: "100%", maxHeight: 200, objectFit: "contain", borderRadius: 4, backgroundColor: "#fff", }}
                 />
               )}
               <div style={{ fontWeight: 600, margin: "8px 0" }}>{product.name}</div>
