@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Product from "../models/Product.js";
+import Product from "./models/Product.js";
 import { SearchClient, AzureKeyCredential } from "@azure/search-documents";
 import dotenv from "dotenv";
 dotenv.config();
