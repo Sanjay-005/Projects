@@ -1,12 +1,12 @@
-import { useEffect, useState, useContext } from "react"; // Add useContext
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { ProductContext } from "./ProductContext"; // Import context
+import { ProductContext } from "./ProductContext";
 
 const API = "http://localhost:5000/api/products";
 
 export default function AdminPage() {
-  const { refreshProducts } = useContext(ProductContext); // Get refresh function from context
+  const { refreshProducts } = useContext(ProductContext);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,13 +17,9 @@ export default function AdminPage() {
   const [editName, setEditName] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [editImage, setEditImage] = useState("");
-
-
   const [category, setCategory] = useState("");
   const [editCategory, setEditCategory] = useState("");
 
-  
-  
   useEffect(() => {
     refresh();
   }, []);
@@ -49,7 +45,7 @@ export default function AdminPage() {
         name: name.trim(),
         price: Number(price),
         image: image.trim() || undefined,
-        category: category.trim(),/** */
+        category: category.trim(),
       };
       const { data } = await axios.post(API, payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -58,9 +54,36 @@ export default function AdminPage() {
       setName("");
       setPrice("");
       setImage("");
-      refreshProducts(); // Update the global products state for shop page
+      setCategory("");
+      refreshProducts();
     } catch (err) {
       alert(err?.response?.data?.message || "Failed to add product");
+    }
+  }
+
+  async function handleBulkUpload(e) {
+    e.preventDefault();
+    const fileInput = document.getElementById("excelFile");
+    if (!fileInput.files[0]) {
+      alert("Please select an Excel file");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    try {
+      await axios.post(`${API}/bulk-upload`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      alert("Products uploaded successfully");
+      refresh();
+      refreshProducts();
+    } catch (err) {
+      alert(err?.response?.data?.message || "Failed to upload products");
     }
   }
 
@@ -69,7 +92,7 @@ export default function AdminPage() {
     setEditName(p.name);
     setEditPrice(String(p.price));
     setEditImage(p.image || "");
-    setEditCategory(p.category || "");/** */
+    setEditCategory(p.category || "");
   }
 
   async function saveEdit(id) {
@@ -78,14 +101,14 @@ export default function AdminPage() {
         name: editName.trim(),
         price: Number(editPrice),
         image: editImage.trim() || undefined,
-        category: editCategory.trim(),/** */
+        category: editCategory.trim(),
       };
       const { data } = await axios.put(`${API}/${id}`, payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setItems((prev) => prev.map((it) => (it._id === id ? data : it)));
       cancelEdit();
-      refreshProducts(); // Update the global products state for shop page
+      refreshProducts();
     } catch (err) {
       alert(err?.response?.data?.message || "Failed to update product");
     }
@@ -96,7 +119,7 @@ export default function AdminPage() {
     setEditName("");
     setEditPrice("");
     setEditImage("");
-    setEditCategory("");/** */
+    setEditCategory("");
   }
 
   async function handleDelete(id) {
@@ -106,7 +129,7 @@ export default function AdminPage() {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setItems((prev) => prev.filter((it) => it._id !== id));
-      refreshProducts(); // Update the global products state for shop page
+      refreshProducts();
     } catch (err) {
       alert(err?.response?.data?.message || "Failed to delete product");
     }
@@ -119,13 +142,15 @@ export default function AdminPage() {
         <Link to="/">← Back to Shop</Link>
       </header>
 
+      {/* Bulk Upload Form */}
+      <form onSubmit={handleBulkUpload} style={{ margin: "16px 0", display: "flex", gap: 8 }}>
+        <input type="file" id="excelFile" accept=".xlsx, .xls" />
+        <button type="submit">Upload Excel</button>
+      </form>
+
+      {/* Add Product Form */}
       <form onSubmit={handleAdd} style={{ margin: "16px 0", display: "grid", gap: 8, maxWidth: 420 }}>
-        <input
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+        <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
         <input
           placeholder="Price (₹)"
           type="number"
@@ -134,17 +159,8 @@ export default function AdminPage() {
           onChange={(e) => setPrice(e.target.value)}
           required
         />
-        <input
-          placeholder="Image URL (optional)"
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-        />
-        <input /** */
-          placeholder="Category"
-          value={category}
-          onChange={e => setCategory(e.target.value)}
-          required
-        />
+        <input placeholder="Image URL (optional)" value={image} onChange={(e) => setImage(e.target.value)} />
+        <input placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} required />
         <button type="submit">Add Product</button>
       </form>
 
@@ -174,8 +190,8 @@ export default function AdminPage() {
                   />
                   <input
                     placeholder="Category"
-                    onChange={e => setEditCategory(e.target.value)}
                     value={editCategory}
+                    onChange={(e) => setEditCategory(e.target.value)}
                     required
                   />
                   <div style={{ display: "flex", gap: 8 }}>
@@ -198,6 +214,7 @@ export default function AdminPage() {
                     />
                   )}
                   <div>₹{p.price}</div>
+                  <div>{p.category}</div>
                   <div style={{ display: "flex", gap: 8 }}>
                     <button type="button" onClick={() => startEdit(p)}>Edit</button>
                     <button type="button" onClick={() => handleDelete(p._id)}>Delete</button>

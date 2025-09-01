@@ -73,83 +73,55 @@ import express from "express";
 import Product from "../models/Product.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { SearchClient, AzureKeyCredential } from "@azure/search-documents";
+import multer from "multer";
+import xlsx from "xlsx";
 
 const router = express.Router();
 
-// router.get("/", async (req, res) => {
-//   try {
-//     const products = await Product.find({});
-//     res.json(products);
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
+// ------------------
+// Bulk Upload Setup
+// ------------------
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-// import express from "express";
-// import Product from "../models/Product.js";
-// import { protect } from "../middleware/authMiddleware.js";
+router.post("/bulk-upload", protect, upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
 
-// const router = express.Router();
+    // Parse Excel file
+    const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const rows = xlsx.utils.sheet_to_json(sheet);
 
-// router.get("/", async (req, res) => {
-//   try {
-//     const products = await Product.find({});
-//     res.json(products);
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
+    if (!rows || rows.length === 0) {
+      return res.status(400).json({ message: "Excel file is empty" });
+    }
 
-// router.get("/:id", async (req, res) => {
-//   try {
-//     const product = await Product.findById(req.params.id);
-//     if (!product) return res.status(404).json({ message: "Product not found" });
-//     res.json(product);
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
+    const products = rows.map((row) => ({
+      name: row.name,
+      price: row.price,
+      image: row.image || "",
+      category: row.category,
+    }));
 
-// router.post("/", protect, async (req, res) => {
-//   try {
-//     const { name, price, image } = req.body;
-//     if (!name || !price) return res.status(400).json({ message: "Name and price required" });
-//     const product = new Product({ name, price, image });
-//     await product.save();
-//     res.status(201).json(product);
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
+    await Product.insertMany(products);
 
-// router.put("/:id", protect, async (req, res) => {
-//   try {
-//     const { name, price, image } = req.body;
-//     const product = await Product.findByIdAndUpdate(
-//       req.params.id,
-//       { name, price, image },
-//       { new: true, runValidators: true }
-//     );
-//     if (!product) return res.status(404).json({ message: "Product not found" });
-//     res.json(product);
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
+    res.json({
+      message: "Products uploaded successfully",
+      count: products.length,
+    });
+  } catch (error) {
+    console.error("Bulk upload error:", error);
+    res.status(500).json({ message: "Failed to upload products" });
+  }
+});
 
-// router.delete("/:id", protect, async (req, res) => {
-//   try {
-//     const product = await Product.findByIdAndDelete(req.params.id);
-//     if (!product) return res.status(404).json({ message: "Product not found" });
-//     res.json({ message: "Product deleted" });
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
-// export default router;
-
-
+// ------------------
+// Existing Routes
+// ------------------
 
 // GET all products with filters/sort
 router.get("/", async (req, res) => {
@@ -162,7 +134,6 @@ router.get("/", async (req, res) => {
 
     let query = Product.find(filter);
 
-    // Sorting
     if (sort === "price_asc") query = query.sort({ price: 1 });
     else if (sort === "price_desc") query = query.sort({ price: -1 });
     else if (sort === "name_asc") query = query.sort({ name: 1 });
@@ -175,7 +146,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ New route to fetch distinct categories
+// Get distinct categories
 router.get("/categories", async (req, res) => {
   try {
     const categories = await Product.distinct("category");
@@ -206,7 +177,7 @@ router.post("/", protect, async (req, res) => {
     const product = new Product({ name, price, image, category });
     await product.save();
 
-    // --- Sync with Azure Search ---
+    // Sync with Azure Search (optional)
     try {
       const endpoint = process.env.AZURE_SEARCH_ENDPOINT;
       const apiKey = process.env.AZURE_SEARCH_API_KEY;
@@ -224,7 +195,6 @@ router.post("/", protect, async (req, res) => {
     } catch (azureErr) {
       console.error("Azure Search sync failed:", azureErr.message);
     }
-    // --- End sync ---
 
     res.status(201).json(product);
   } catch (err) {
