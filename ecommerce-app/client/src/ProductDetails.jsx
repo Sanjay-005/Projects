@@ -35,7 +35,7 @@ function ProductDetails({ addToCart }) {
         <img
           src={product.image}
           alt={product.name}
-          style={{ width: 300, height: 350, objectFit: "cover", display: "block", marginBottom: 12 }}
+          style={{ width: "100%", maxWidth: "400px", height: "auto", objectFit: "contain", display: "block", margin: "0 auto 12px", }}
         />
       )}
       <p>Price: ₹{product.price}</p>
