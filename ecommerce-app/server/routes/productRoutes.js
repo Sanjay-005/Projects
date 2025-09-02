@@ -1,18 +1,91 @@
 // import express from "express";
 // import Product from "../models/Product.js";
 // import { protect } from "../middleware/authMiddleware.js";
+// import { SearchClient, AzureKeyCredential } from "@azure/search-documents";
+// import multer from "multer";
+// import xlsx from "xlsx";
 
 // const router = express.Router();
 
+// // ------------------
+// // Bulk Upload Setup
+// // ------------------
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage });
+
+// router.post("/bulk-upload", protect, upload.single("file"), async (req, res) => {
+//   try {
+//     if (!req.file) {
+//       return res.status(400).json({ message: "No file uploaded" });
+//     }
+
+//     // Parse Excel file
+//     const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
+//     const sheetName = workbook.SheetNames[0];
+//     const sheet = workbook.Sheets[sheetName];
+//     const rows = xlsx.utils.sheet_to_json(sheet);
+
+//     if (!rows || rows.length === 0) {
+//       return res.status(400).json({ message: "Excel file is empty" });
+//     }
+
+//     const products = rows.map((row) => ({
+//       name: row.name,
+//       price: row.price,
+//       image: row.image || "",
+//       category: row.category,
+//     }));
+
+//     await Product.insertMany(products);
+
+//     res.json({
+//       message: "Products uploaded successfully",
+//       count: products.length,
+//     });
+//   } catch (error) {
+//     console.error("Bulk upload error:", error);
+//     res.status(500).json({ message: "Failed to upload products" });
+//   }
+// });
+
+// // ------------------
+// // Existing Routes
+// // ------------------
+
+// // GET all products with filters/sort
 // router.get("/", async (req, res) => {
 //   try {
-//     const products = await Product.find({});
+//     const { category, minPrice, maxPrice, sort } = req.query;
+//     const filter = {};
+//     if (category) filter.category = category;
+//     if (minPrice) filter.price = { ...filter.price, $gte: Number(minPrice) };
+//     if (maxPrice) filter.price = { ...filter.price, $lte: Number(maxPrice) };
+
+//     let query = Product.find(filter);
+
+//     if (sort === "price_asc") query = query.sort({ price: 1 });
+//     else if (sort === "price_desc") query = query.sort({ price: -1 });
+//     else if (sort === "name_asc") query = query.sort({ name: 1 });
+//     else if (sort === "name_desc") query = query.sort({ name: -1 });
+
+//     const products = await query.exec();
 //     res.json(products);
 //   } catch (err) {
 //     res.status(500).json({ message: "Server error" });
 //   }
 // });
 
+// // Get distinct categories
+// router.get("/categories", async (req, res) => {
+//   try {
+//     const categories = await Product.distinct("category");
+//     res.json(categories);
+//   } catch (err) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
+
+// // GET single product
 // router.get("/:id", async (req, res) => {
 //   try {
 //     const product = await Product.findById(req.params.id);
@@ -23,24 +96,48 @@
 //   }
 // });
 
+// // CREATE product
 // router.post("/", protect, async (req, res) => {
 //   try {
-//     const { name, price, image } = req.body;
-//     if (!name || !price) return res.status(400).json({ message: "Name and price required" });
-//     const product = new Product({ name, price, image });
+//     const { name, price, image, category } = req.body;
+//     if (!name || !price || !category) {
+//       return res.status(400).json({ message: "Name, price, and category required" });
+//     }
+//     const product = new Product({ name, price, image, category });
 //     await product.save();
+
+//     // Sync with Azure Search (optional)
+//     try {
+//       const endpoint = process.env.AZURE_SEARCH_ENDPOINT;
+//       const apiKey = process.env.AZURE_SEARCH_API_KEY;
+//       const indexName = process.env.AZURE_SEARCH_INDEX_NAME;
+//       if (endpoint && apiKey && indexName) {
+//         const client = new SearchClient(endpoint, indexName, new AzureKeyCredential(apiKey));
+//         await client.uploadDocuments([{
+//           id: product._id.toString(),
+//           name: product.name,
+//           price: product.price,
+//           image: product.image,
+//           category: product.category,
+//         }]);
+//       }
+//     } catch (azureErr) {
+//       console.error("Azure Search sync failed:", azureErr.message);
+//     }
+
 //     res.status(201).json(product);
 //   } catch (err) {
 //     res.status(500).json({ message: "Server error" });
 //   }
 // });
 
+// // UPDATE product
 // router.put("/:id", protect, async (req, res) => {
 //   try {
-//     const { name, price, image } = req.body;
+//     const { name, price, image, category } = req.body;
 //     const product = await Product.findByIdAndUpdate(
 //       req.params.id,
-//       { name, price, image },
+//       { name, price, image, category },
 //       { new: true, runValidators: true }
 //     );
 //     if (!product) return res.status(404).json({ message: "Product not found" });
@@ -50,6 +147,7 @@
 //   }
 // });
 
+// // DELETE product
 // router.delete("/:id", protect, async (req, res) => {
 //   try {
 //     const product = await Product.findByIdAndDelete(req.params.id);
@@ -104,6 +202,7 @@ router.post("/bulk-upload", protect, upload.single("file"), async (req, res) => 
       name: row.name,
       price: row.price,
       image: row.image || "",
+      images: row.images ? row.images.split(",").map((img) => img.trim()) : [], // support multi images in Excel
       category: row.category,
     }));
 
@@ -170,32 +269,28 @@ router.get("/:id", async (req, res) => {
 // CREATE product
 router.post("/", protect, async (req, res) => {
   try {
-    const { name, price, image, category } = req.body;
+    const { name, price, image, images, category } = req.body;
     if (!name || !price || !category) {
-      return res.status(400).json({ message: "Name, price, and category required" });
+      return res
+        .status(400)
+        .json({ message: "Name, price, and category required" });
     }
-    const product = new Product({ name, price, image, category });
+
+    const product = new Product({
+      name,
+      price,
+      category,
+      image: image || "",
+      images: Array.isArray(images)
+        ? images
+        : images
+        ? images.split(",").map((img) => img.trim())
+        : image
+        ? [image]
+        : [],
+    });
+
     await product.save();
-
-    // Sync with Azure Search (optional)
-    try {
-      const endpoint = process.env.AZURE_SEARCH_ENDPOINT;
-      const apiKey = process.env.AZURE_SEARCH_API_KEY;
-      const indexName = process.env.AZURE_SEARCH_INDEX_NAME;
-      if (endpoint && apiKey && indexName) {
-        const client = new SearchClient(endpoint, indexName, new AzureKeyCredential(apiKey));
-        await client.uploadDocuments([{
-          id: product._id.toString(),
-          name: product.name,
-          price: product.price,
-          image: product.image,
-          category: product.category,
-        }]);
-      }
-    } catch (azureErr) {
-      console.error("Azure Search sync failed:", azureErr.message);
-    }
-
     res.status(201).json(product);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -205,12 +300,26 @@ router.post("/", protect, async (req, res) => {
 // UPDATE product
 router.put("/:id", protect, async (req, res) => {
   try {
-    const { name, price, image, category } = req.body;
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { name, price, image, category },
-      { new: true, runValidators: true }
-    );
+    const { name, price, image, images, category } = req.body;
+    const updateData = {
+      name,
+      price,
+      category,
+      image: image || "",
+      images: Array.isArray(images)
+        ? images
+        : images
+        ? images.split(",").map((img) => img.trim())
+        : image
+        ? [image]
+        : [],
+    };
+
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
     if (!product) return res.status(404).json({ message: "Product not found" });
     res.json(product);
   } catch (err) {

@@ -1,0 +1,19 @@
+.image-zoom-container {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  overflow: hidden;
+}
+
+.main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease-in-out;
+  cursor: zoom-in;
+}
+
+.image-zoom-container:hover .main-image {
+  transform: scale(1.5);
+  cursor: zoom-out;
+}
