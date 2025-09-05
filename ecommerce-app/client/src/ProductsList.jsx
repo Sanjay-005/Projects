@@ -39,7 +39,7 @@ export default function ProductsList() {
   return (
     <div>
       <h2>Products</h2>
-      <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+      <div className="filters-container">
         <select value={category} onChange={e => setCategory(e.target.value)}>
           <option value="">All Categories</option>
           {categories.map(cat => (
@@ -65,10 +65,10 @@ export default function ProductsList() {
           <option value="name_asc">Name: A-Z</option>
           <option value="name_desc">Name: Z-A</option>
         </select>
-        <button onClick={fetchProducts}>Apply</button>
+        <button className="apply-btn" onClick={fetchProducts}>Apply</button>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
+      <div className="products-grid">
         {products.map(product => {
           // ✅ Choose which image to display
           const productImage =
@@ -76,24 +76,13 @@ export default function ProductsList() {
             (product.images && product.images.length > 0 ? product.images[0] : "/placeholder.png");
 
           return (
-            <div key={product._id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>
-              <Link to={`/product/${product._id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                <img
-                  src={productImage}
-                  alt={product.name}
-                  style={{
-                    width: "100%",
-                    maxHeight: 200,
-                    objectFit: "contain",
-                    borderRadius: 4,
-                    backgroundColor: "#fff",
-                  }}
+              <Link key={product._id} to={`/product/${product._id}`} className="product-card">
+                <img src={productImage} alt={product.name}
                 />
-                <div style={{ fontWeight: 600, margin: "8px 0" }}>{product.name}</div>
-                <div>₹{product.price}</div>
-                <div style={{ color: "#888" }}>{product.category}</div>
+                <div className="product-name">{product.name}</div>
+                <div className="product-price">₹{product.price}</div>
+                <div className="product-category">{product.category}</div>
               </Link>
-            </div>
           );
         })}
       </div>

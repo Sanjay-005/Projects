@@ -32,36 +32,27 @@ function App() {
   const clearCart = () => setCart([]);
 
   return (
-    <ProductProvider> {/* Wrap the app with ProductProvider */}
-      <div style={{ padding: 20 }}>
-        {/* <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h1>
+    <ProductProvider>
+      <div>
+        <header className="header">
+          <h1 className="logo">
             <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
               My E-Commerce
             </Link>
           </h1>
-          <nav style={{ display: "flex", gap: 16 }}>
-            <Link to="/login">Login</Link>
-            <Link to="/admin">Admin</Link>
-            <Link to="/cart">Cart ({cart.length})</Link>
+          <div className="search-bar">
+            <ProductSearch />
+
+          </div>
+          <nav className="nav-links">
+          <Link to="/login">Login</Link>
+          <Link to="/admin">Admin</Link>
+          <Link to="/cart">Cart ({cart.length})</Link>
           </nav>
-        </header> */}
-        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-  <h1>
-    <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-      My E-Commerce
-    </Link>
-  </h1>
-  <ProductSearch />
-  <nav style={{ display: "flex", gap: 16 }}>
-    <Link to="/login">Login</Link>
-    <Link to="/admin">Admin</Link>
-    <Link to="/cart">Cart ({cart.length})</Link>
-  </nav>
-</header>
+        </header>
 
         <Routes>
-          <Route path="/" element={<ProductsList />} /> {/* No props needed now */}
+          <Route path="/" element={<ProductsList />} />
           <Route path="/product/:id" element={<ProductDetails addToCart={addToCart} />} />
           <Route path="/cart" element={<CartPage cart={cart} removeFromCart={removeFromCart} />} />
           <Route path="/checkout" element={<CheckoutPage cart={cart} clearCart={clearCart} />} />
