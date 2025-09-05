@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useLocation } from "react-router-dom";
+import { FaSearch } from "react-icons/fa";
 
 export default function ProductSearch() {
   const [query, setQuery] = useState("");
@@ -31,29 +32,21 @@ export default function ProductSearch() {
   }, [location]);
 
   return (
-    <div style={{ position: "relative", maxWidth: 300 }}>
+    <div className="search-container">
       <input
         type="text"
         value={query}
         onChange={handleChange}
         placeholder="Search products..."
-        style={{ width: "100%", padding: 8 }}
+        className="search-input"
       />
+
+      <button className="search-button">
+        <FaSearch />
+      </button>
+
       {suggestions.length > 0 && (
-        <ul
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            background: "#fff",
-            border: "1px solid #ccc",
-            zIndex: 10,
-            listStyle: "none",
-            margin: 0,
-            padding: 0,
-          }}
-        >
+        <ul className="search-suggestions">
           {suggestions.map((s, i) => (
             <li
               key={i}
@@ -65,17 +58,12 @@ export default function ProductSearch() {
                   <img
                     src={s.image}
                     alt={s.name}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      objectFit: "cover",
-                      marginRight: 8,
-                    }}
+                    className="suggestion-img"
                   />
                 )}
                 {s.name} - ₹{s.price}
                 {s.category && (
-                  <span style={{ color: "#666", marginLeft: 6 }}>
+                  <span className="suggestion-cat">
                     ({s.category})
                   </span>
                 )}

@@ -35,19 +35,22 @@ function App() {
     <ProductProvider>
       <div>
         <header className="header">
-          <h1 className="logo">
+          <div className="header-left">
+            <h1 className="logo">
             <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
               My E-Commerce
             </Link>
           </h1>
-          <div className="search-bar">
+          </div>
+          
+          <div className="header-center">
             <ProductSearch />
 
           </div>
-          <nav className="nav-links">
-          <Link to="/login">Login</Link>
-          <Link to="/admin">Admin</Link>
-          <Link to="/cart">Cart ({cart.length})</Link>
+          <nav className="header-right">
+            <Link to="/login">Login</Link>
+            <Link to="/admin">Admin</Link>
+            <Link to="/cart">Cart ({cart.length})</Link>
           </nav>
         </header>
 
