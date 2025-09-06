@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./Login.css";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -26,10 +27,12 @@ function Login() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>{isRegister ? "Register" : "Login"}</h2>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 8, maxWidth: 300 }}>
+    <div className="login-page">
+      <div className="login-card">
+      <h2 className="login-title">{isRegister ? "Sign-Up" : "Sign-In"}</h2>
+      <form onSubmit={handleSubmit} className="login-form">
         <input
+          className="login-input"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -37,16 +40,18 @@ function Login() {
         />
         <input
           type="password"
+          className="login-input"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">{isRegister ? "Register" : "Login"}</button>
+        <button type="submit" className="login-btn">{isRegister ? "Sign-Up" : "Sign-In"}</button>
       </form>
-      <button onClick={() => setIsRegister(!isRegister)} style={{ marginTop: 10 }}>
-        {isRegister ? "Switch to Login" : "Switch to Register"}
+      <button onClick={() => setIsRegister(!isRegister)} className="switch-btn">
+        {isRegister ? "Sign-In" : "Sign-Up"}
       </button>
+      </div>
     </div>
   );
 }

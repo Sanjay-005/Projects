@@ -38,7 +38,6 @@ export default function ProductsList() {
 
   return (
     <div>
-      <h2>Products</h2>
       <div className="filters-container">
         <select value={category} onChange={e => setCategory(e.target.value)}>
           <option value="">All Categories</option>

@@ -28,10 +28,8 @@ function ProductDetails({ addToCart }) {
   if (!product) return <h2>Product not found</h2>;
 
   return (
-    <div style={{ display: "flex", gap: 24 }}>
-      {/* ✅ Left: Images */}
-      <div>
-        {/* Main image with zoom */}
+    <div className="product-details-container">
+      <div className="image-section">
         {mainImage && (
           <div className="image-zoom-container">
             <img src={mainImage} alt={product.name} className="main-image" />
@@ -39,7 +37,7 @@ function ProductDetails({ addToCart }) {
         )}
 
         {/* Thumbnails */}
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <div className="thumbnail-list">
           {(product.images && product.images.length > 0
             ? product.images
             : [product.image]
@@ -49,24 +47,16 @@ function ProductDetails({ addToCart }) {
               src={img}
               alt={`Thumbnail ${idx + 1}`}
               onClick={() => setMainImage(img)}
-              style={{
-                width: 60,
-                height: 60,
-                objectFit: "cover",
-                cursor: "pointer",
-                border: mainImage === img ? "2px solid blue" : "1px solid #ccc",
-                borderRadius: 4,
-              }}
+              className={mainImage === img ? "active" : ""}
             />
           ))}
         </div>
       </div>
 
-      {/* ✅ Right: Product Info */}
-      <div>
+      <div className="details-section">
         <h2>{product.name}</h2>
-        <p>Price: ₹{product.price}</p>
-        <button onClick={() => addToCart(product)}>Add to Cart</button>
+        <p className="price">Price: ₹{product.price}</p>
+        <button className="add-to-cart-btn" onClick={() => addToCart(product)}>Add to Cart</button>
       </div>
     </div>
   );

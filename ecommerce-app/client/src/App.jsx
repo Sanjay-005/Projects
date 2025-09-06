@@ -64,8 +64,8 @@ function App() {
         </Routes>
 
         <hr />
-        <footer style={{ marginTop: 20 }}>
-          <small>Demo app - products, users, and orders persisted in MongoDB</small>
+        <footer className="footer">
+          <small>Orewa Luffy!!</small>
         </footer>
       </div>
     </ProductProvider>

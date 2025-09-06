@@ -1,0 +1,73 @@
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f2f2f2;
+  font-family: "Amazon Ember", Arial, sans-serif;
+}
+
+.login-card {
+  background: #fff;
+  padding: 30px 40px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.login-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #111;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-input {
+  padding: 10px;
+  border: 1px solid #a6a6a6;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.login-input:focus {
+  border-color: #e77600;
+  box-shadow: 0 0 3px rgba(228,121,17,0.5);
+  outline: none;
+}
+
+.login-btn {
+  background: #f0c14b;
+  border: 1px solid #a88734;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background: #e2b33c;
+}
+
+.switch-btn {
+  margin-top: 15px;
+  width: 100%;
+  background: #e7e9ec;
+  border: 1px solid #adb1b8;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.switch-btn:hover {
+  background: #d7d9dc;
+}
