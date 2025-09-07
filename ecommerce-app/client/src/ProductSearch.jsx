@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 
 export default function ProductSearch() {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const location = useLocation(); // track route changes
+  const location = useLocation();
+  const navigate = useNavigate();
 
   async function handleChange(e) {
     const val = e.target.value;
@@ -25,10 +26,24 @@ export default function ProductSearch() {
     }
   }
 
-  // Clear suggestions on route change
+  const handleSearch = () => {
+    if (query.trim()) {
+      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+      setSuggestions([]);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   useEffect(() => {
     setSuggestions([]);
-    setQuery("");
+    if (location.pathname === "/") {
+      setQuery(""); // clear query only on home page
+    }
   }, [location]);
 
   return (
@@ -37,11 +52,12 @@ export default function ProductSearch() {
         type="text"
         value={query}
         onChange={handleChange}
+        onKeyPress={handleKeyPress}
         placeholder="Search products..."
         className="search-input"
       />
 
-      <button className="search-button">
+      <button className="search-button" onClick={handleSearch}>
         <FaSearch />
       </button>
 
@@ -51,7 +67,7 @@ export default function ProductSearch() {
             <li
               key={i}
               style={{ padding: 8 }}
-              onClick={() => setSuggestions([])} // clear after click
+              onClick={() => setSuggestions([])}
             >
               <Link to={`/product/${s._id || s.id}`}>
                 {s.image && (
@@ -63,9 +79,7 @@ export default function ProductSearch() {
                 )}
                 {s.name} - ₹{s.price}
                 {s.category && (
-                  <span className="suggestion-cat">
-                    ({s.category})
-                  </span>
+                  <span className="suggestion-cat">({s.category})</span>
                 )}
               </Link>
             </li>

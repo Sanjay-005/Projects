@@ -30,4 +30,37 @@ router.get("/suggest", async (req, res) => {
   }
 });
 
+// GET /api/search?q=term
+router.get("/", async (req, res) => {
+  const { q } = req.query;
+  if (!q) return res.status(400).json({ message: "Missing query" });
+
+  const endpoint = process.env.AZURE_SEARCH_ENDPOINT;
+  const apiKey = process.env.AZURE_SEARCH_API_KEY;
+  const indexName = process.env.AZURE_SEARCH_INDEX_NAME;
+
+  if (!endpoint || !apiKey || !indexName) {
+    return res.status(500).json({ message: "Azure Search config not set" });
+  }
+
+  const client = new SearchClient(endpoint, indexName, new AzureKeyCredential(apiKey));
+
+  try {
+    const searchResults = await client.search(q, {
+      top: 20,
+      select: ["id", "name", "price", "image", "category"]
+    });
+
+    const results = [];
+    for await (const result of searchResults.results) {
+      results.push(result.document);
+    }
+
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: "Azure Search error", error: err.message });
+  }
+});
+
+
 export default router;

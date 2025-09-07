@@ -9,6 +9,7 @@ import AdminPage from "./AdminPage";
 import CheckoutPage from "./CheckoutPage";
 import Login from "./Login";
 import { ProductProvider } from "./ProductContext"; 
+import SearchResults from "./SearchResults";
 
 function App() {
   const [cart, setCart] = useState(() => {
@@ -61,6 +62,7 @@ function App() {
           <Route path="/checkout" element={<CheckoutPage cart={cart} clearCart={clearCart} />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/search" element={<SearchResults />} />
         </Routes>
 
         <hr />

@@ -97,6 +97,38 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.get("/search/results", async (req, res) => {
+  const { q } = req.query;
+  if (!q) return res.status(400).json({ message: "Missing search query" });
+
+  const endpoint = process.env.AZURE_SEARCH_ENDPOINT;
+  const apiKey = process.env.AZURE_SEARCH_API_KEY;
+  const indexName = process.env.AZURE_SEARCH_INDEX_NAME;
+
+  if (!endpoint || !apiKey || !indexName) {
+    return res.status(500).json({ message: "Azure Search env vars not set" });
+  }
+
+  const client = new SearchClient(endpoint, indexName, new AzureKeyCredential(apiKey));
+
+  try {
+    const searchResults = await client.search(q, {
+      top: 50,
+      select: ["id", "name", "price", "image", "images", "category"],
+    });
+
+    const products = [];
+    for await (const result of searchResults.results) {
+      products.push(result.document);
+    }
+
+    res.json(products);
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ message: "Search failed", error: err.message });
+  }
+});
+
 // CREATE product
 router.post("/", protect, async (req, res) => {
   try {
