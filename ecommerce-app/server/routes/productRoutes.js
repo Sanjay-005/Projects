@@ -1,6 +1,6 @@
 import express from "express";
 import Product from "../models/Product.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, admin } from "../middleware/authMiddleware.js"; // Updated to import admin
 import { SearchClient, AzureKeyCredential } from "@azure/search-documents";
 import multer from "multer";
 import xlsx from "xlsx";
@@ -13,13 +13,13 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-router.post("/bulk-upload", protect, upload.single("file"), async (req, res) => {
+// Admin-only bulk upload route
+router.post("/bulk-upload", protect, admin, upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    // Parse Excel file
     const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
@@ -33,7 +33,7 @@ router.post("/bulk-upload", protect, upload.single("file"), async (req, res) => 
       name: row.name,
       price: row.price,
       image: row.image || "",
-      images: row.images ? row.images.split(",").map((img) => img.trim()) : [], // support multi images in Excel
+      images: row.images ? row.images.split(",").map((img) => img.trim()) : [],
       category: row.category,
     }));
 
@@ -97,6 +97,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// Search results using Azure
 router.get("/search/results", async (req, res) => {
   const { q } = req.query;
   if (!q) return res.status(400).json({ message: "Missing search query" });
@@ -129,14 +130,12 @@ router.get("/search/results", async (req, res) => {
   }
 });
 
-// CREATE product
-router.post("/", protect, async (req, res) => {
+// CREATE product — Admin only
+router.post("/", protect, admin, async (req, res) => {
   try {
     const { name, price, image, images, category } = req.body;
     if (!name || !price || !category) {
-      return res
-        .status(400)
-        .json({ message: "Name, price, and category required" });
+      return res.status(400).json({ message: "Name, price, and category required" });
     }
 
     const product = new Product({
@@ -160,8 +159,8 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
-// UPDATE product
-router.put("/:id", protect, async (req, res) => {
+// UPDATE product — Admin only
+router.put("/:id", protect, admin, async (req, res) => {
   try {
     const { name, price, image, images, category } = req.body;
     const updateData = {
@@ -190,8 +189,8 @@ router.put("/:id", protect, async (req, res) => {
   }
 });
 
-// DELETE product
-router.delete("/:id", protect, async (req, res) => {
+// DELETE product — Admin only
+router.delete("/:id", protect, admin, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });

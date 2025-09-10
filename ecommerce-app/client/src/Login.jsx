@@ -16,7 +16,8 @@ function Login() {
       const { data } = await axios.post(`http://localhost:5000${url}`, { username, password });
       if (!isRegister) {
         localStorage.setItem("token", data.token);
-        navigate("/admin");
+        localStorage.setItem("role", data.role); // store role
+        navigate(data.role === "admin" ? "/admin" : "/");
       } else {
         alert("Registered! Please login.");
         setIsRegister(false);
@@ -29,28 +30,28 @@ function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
-      <h2 className="login-title">{isRegister ? "Sign-Up" : "Sign-In"}</h2>
-      <form onSubmit={handleSubmit} className="login-form">
-        <input
-          className="login-input"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          className="login-input"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit" className="login-btn">{isRegister ? "Sign-Up" : "Sign-In"}</button>
-      </form>
-      <button onClick={() => setIsRegister(!isRegister)} className="switch-btn">
-        {isRegister ? "Sign-In" : "Sign-Up"}
-      </button>
+        <h2 className="login-title">{isRegister ? "Sign-Up" : "Sign-In"}</h2>
+        <form onSubmit={handleSubmit} className="login-form">
+          <input
+            className="login-input"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            className="login-input"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit" className="login-btn">{isRegister ? "Sign-Up" : "Sign-In"}</button>
+        </form>
+        <button onClick={() => setIsRegister(!isRegister)} className="switch-btn">
+          {isRegister ? "Sign-In" : "Sign-Up"}
+        </button>
       </div>
     </div>
   );
