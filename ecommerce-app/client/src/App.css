@@ -488,3 +488,39 @@ body {
   color: #666;
   margin-top: 40px;
 }
+
+.cart-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.cart-link:hover {
+  color: #ff9900;
+}
+
+.cart-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cart-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.cart-count {
+  position: absolute;
+  top: -17px;
+  left: 5px;
+  color: #EBEBEB;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-align: center;
+}

@@ -31,12 +31,10 @@ function App() {
     } catch {}
   }, [cart]);
 
-  // Update role when location changes (i.e., user navigates to a new page)
   useEffect(() => {
     setRole(localStorage.getItem("role") || "user");
   }, [location]);
 
-  // Listen for localStorage changes in case other tabs or events modify it
   useEffect(() => {
     const handleStorageChange = () => {
       setRole(localStorage.getItem("role") || "user");
@@ -71,7 +69,26 @@ function App() {
           <nav className="header-right">
             <Link to="/login">Login</Link>
             {role === "admin" && <Link to="/admin">Admin</Link>}
-            <Link to="/cart">Cart ({cart.length})</Link>
+            <Link to="/cart" className="cart-link">
+              <div className="cart-icon-container">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  className="cart-icon"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9m-6-5a1 1 0 100 2 1 1 0 000-2zm-6 0a1 1 0 100 2 1 1 0 000-2z"
+                  />
+                </svg>
+                {cart.length > 0 && <span className="cart-count">{cart.length}</span>}
+              </div>
+              Cart
+            </Link>
           </nav>
         </header>
 
@@ -95,3 +112,4 @@ function App() {
 }
 
 export default App;
+
