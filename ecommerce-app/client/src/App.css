@@ -517,10 +517,11 @@ body {
 
 .cart-count {
   position: absolute;
-  top: -17px;
+  top: -13px;
   left: 5px;
   color: #EBEBEB;
   font-size: 0.9rem;
   font-weight: bold;
   text-align: center;
 }
+
