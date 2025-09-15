@@ -181,7 +181,7 @@ function App() {
 
   return (
     <ProductProvider>
-      <div>
+      <div class="app-container">
         <header className="header">
           <div className="header-left">
             <h1 className="logo">
@@ -235,7 +235,6 @@ function App() {
 
         </Routes>
 
-        <hr />
         <footer className="footer">
           <div className="footer-container">
             <div className="footer-section">
