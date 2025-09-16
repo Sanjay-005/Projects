@@ -76,27 +76,39 @@ body {
   position: relative;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .header {
     flex-direction: column;
     align-items: stretch;
-    text-align: center;
+    height: auto;
+    padding: 12px;
   }
 
   .header-left {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    text-align: center;
   }
 
   .header-center {
     order: 2;
     width: 100%;
-    margin: 8px 0;
+    margin: 10px 0;
+  }
+
+  .header-center input {
+    width: 100%;
   }
 
   .header-right {
     order: 3;
     justify-content: center;
+    flex-wrap: wrap;
     margin-top: 8px;
+    gap: 12px;
+  }
+
+  .header-right a {
+    font-size: 0.95rem;
   }
 }
 
@@ -106,10 +118,9 @@ body {
   gap: 16px;
   flex-wrap: wrap;
   align-items: center;
-  background: #f9f9f9;
-  padding: 12px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background: #273F4F;
+  padding: 8px 12px;
+  border: 1px solid #273F4F;
   margin-bottom: 20px;
 }
 
@@ -129,34 +140,31 @@ body {
 }
 
 .filters-container input[type="number"] {
-  padding: 8px 10px;
+  padding: 7px 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.95rem;
-  width: 120px;
+  width: 90px;
   transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
 .filters-container input[type="number"]:focus {
-  border-color: #ff9900;
   box-shadow: 0 0 4px rgba(255,153,0,0.4);
   outline: none;
 }
 
-.apply-btn {
-  background: #ff9900;
-  color: #fff;
+.filters-container option {
   font-size: 0.95rem;
-  font-weight: 600;
-  padding: 8px 16px;
+}
+
+.apply-btn {
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 8px 14px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
-}
-
-.apply-btn:hover {
-  background: #e68a00;
 }
 
 .apply-btn:active {
@@ -171,7 +179,7 @@ body {
 }
 
 .product-card {
-  background: #fff;
+  background: #F7F7F7;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
   padding: 16px;
@@ -190,7 +198,7 @@ body {
   height: 200px;
   object-fit: contain;
   border-radius: 6px;
-  background: #fafafa;
+  background: #F7F7F7;
 }
 
 .product-name {
@@ -588,3 +596,88 @@ body {
   text-align: center;
 }
 
+.categories-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-right: 60%;
+}
+
+/* Sidebar overlay (dim background) */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s, width 0s 0.3s;
+}
+
+.sidebar-overlay.show {
+  width: 100%;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+/* Sidebar itself */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px; /* hidden initially */
+  width: 250px;
+  height: 100%;
+  background: #fff;
+  transition: left 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #273F4F;
+  border-bottom: 1px solid #ddd;
+  color: #FFFDF0;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.sidebar-items {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar-item {
+  padding: 12px 16px;
+  border-bottom: 2px solid #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sidebar-item:hover {
+  background: #f9f9f9;
+}
+
+@media (max-width: 900px) {
+  .categories-btn {
+    margin-right: 20px;
+  }
+}
