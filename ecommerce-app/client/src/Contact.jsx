@@ -1,6 +1,6 @@
 function Contact() {
   return (
-    <div style={{ maxWidth: "800px", margin: "30px auto", padding: "20px" }}>
+    <div style={{ maxWidth: "800px", margin: "90px auto", padding: "20px" }}>
       <h2>Contact Us</h2>
       <p>If you have any questions or need assistance, feel free to reach out to us!</p>
       <ul>

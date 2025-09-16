@@ -1,6 +1,6 @@
 function About() {
   return (
-    <div style={{ maxWidth: "800px", margin: "30px auto", padding: "20px" }}>
+    <div style={{ maxWidth: "800px", margin: "90px auto", padding: "20px" }}>
       <h2>About Us</h2>
       <p>
         Welcome to My E-Commerce! We are dedicated to providing you with the best products at the best prices.
