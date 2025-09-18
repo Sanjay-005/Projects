@@ -4,9 +4,9 @@ function Contact() {
       <h2>Contact Us</h2>
       <p>If you have any questions or need assistance, feel free to reach out to us!</p>
       <ul>
-        <li>Email: support@myecommerce.com</li>
-        <li>Phone: +91 12345 67890</li>
-        <li>Address: 123 Street, City Name, State, Country - 560001</li>
+        <li>Email: sanjayshakthivel005@gmail.com</li>
+        <li>Phone: +91 9025890190</li>
+        <li>Address: 2J-7B LF Road Gandhinagar, Cumbum, Theni - 625516</li>
       </ul>
       <p>We are here to help you every step of the way.</p>
     </div>
