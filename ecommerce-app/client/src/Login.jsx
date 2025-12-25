@@ -149,8 +149,9 @@ function Login() {
         setIsRegister(false);
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Error occurred");
-    }
+  console.error("LOGIN ERROR:", err.message);
+  res.status(500).json({ message: err.message });
+}
   };
 
   return (
