@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import axios from "axios";
+import API from "./api";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -16,8 +17,8 @@ export default function SearchResults() {
     if (!query) return;
 
     setLoading(true);
-    axios
-      .get("http://localhost:5000/api/search", {
+    API
+      .get("/api/search", {
         params: { q: query },
       })
       .then((res) => {

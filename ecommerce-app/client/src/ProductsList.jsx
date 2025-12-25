@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import API from "./api";
 
 export default function ProductsList() {
   const [products, setProducts] = useState([]);
@@ -21,8 +22,8 @@ export default function ProductsList() {
 
   // ✅ Fetch categories
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/products/categories")
+    API
+      .get("/api/products/categories")
       .then((res) => setCategories(res.data))
       .catch(() => setCategories([]));
   }, []);
@@ -36,8 +37,8 @@ export default function ProductsList() {
     if (maxPrice !== "") params.maxPrice = maxPrice;
     if (sort) params.sort = sort;
 
-    axios
-      .get("http://localhost:5000/api/products", { params })
+    API
+      .get("/api/products", { params })
       .then((res) => {
         setProducts(res.data);
       })

@@ -70,6 +70,7 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./ProductDetails.css";
+import API from "./api";
 
 function ProductDetails({ addToCart }) {
   const { id } = useParams();
@@ -84,8 +85,8 @@ function ProductDetails({ addToCart }) {
 
   useEffect(() => {
     setLoading(true);
-    axios
-      .get(`http://localhost:5000/api/products/${id}`)
+    API
+      .get(`/api/products/${id}`)
       .then((res) => {
         setProduct(res.data);
         setMainImage(res.data.images?.[0] || res.data.image || null);
@@ -93,8 +94,8 @@ function ProductDetails({ addToCart }) {
 
         // fetch related products by category
         if (res.data.category) {
-          axios
-            .get("http://localhost:5000/api/products", {
+          API
+            .get("/api/products", {
               params: { category: res.data.category },
             })
             .then((resp) => {

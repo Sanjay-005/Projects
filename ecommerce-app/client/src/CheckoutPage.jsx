@@ -99,6 +99,7 @@ import { useState } from "react";
 import axios from "axios";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import API from "./api";
 
 const stripePromise = loadStripe("pk_test_51S1KEH0ecp93dnjZSYfISKzkGKLzdyE1TOl4qipjDnFtYkRrg4CkY4i3MC4QxRsmmM8FhKpXP2uMWZGOdVQEWMCA00Djn3tgbZ");
 
@@ -116,7 +117,7 @@ function CheckoutForm({ cart, clearCart }) {
     setError(null);
 
     try {
-      const { data } = await axios.post("http://localhost:5000/api/payment/create-payment-intent", {
+      const { data } = await API.post("/api/payment/create-payment-intent", {
         amount: totalPrice,
       });
 
@@ -136,8 +137,8 @@ function CheckoutForm({ cart, clearCart }) {
           price: item.price,
           quantity: 1,
         }));
-        await axios.post(
-          "http://localhost:5000/api/orders",
+        await API.post(
+          "/api/orders",
           { items, total: totalPrice, address },
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );

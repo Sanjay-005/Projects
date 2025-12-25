@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
+import API from "./api";
 
 export default function ProductSearch() {
   const [query, setQuery] = useState("");
@@ -17,8 +18,8 @@ export default function ProductSearch() {
       return;
     }
     try {
-      const { data } = await axios.get(
-        `http://localhost:5000/api/search/suggest?q=${encodeURIComponent(val)}`
+      const { data } = await API.get(
+        `/api/search/suggest?q=${encodeURIComponent(val)}`
       );
       setSuggestions(data);
     } catch {

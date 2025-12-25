@@ -129,6 +129,7 @@ import SearchResults from "./SearchResults";
 import About from "./About";
 import Contact from "./Contact";
 import Faq from "./Faq";
+import API from "./api";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -140,7 +141,7 @@ function App() {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const { data } = await axios.get("http://localhost:5000/api/users/cart", {
+        const { data } = await API.get("/api/users/cart", {
           headers: { Authorization: `Bearer ${token}` }
         });
         setCart(data.cart || []);
@@ -165,7 +166,7 @@ function App() {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        await axios.post("http://localhost:5000/api/users/cart", { cart: newCart }, {
+        await API.post("/api/users/cart", { cart: newCart }, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } catch (err) {

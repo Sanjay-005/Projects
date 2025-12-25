@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 import axios from "axios";
+import API from "./api";
 
 export const ProductContext = createContext();
 
@@ -11,7 +12,7 @@ export function ProductProvider({ children }) {
   const refreshProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/api/products");
+      const response = await API.get("/api/products");
       setProducts(response.data);
       setError(null);
     } catch (err) {

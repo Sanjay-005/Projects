@@ -2,8 +2,9 @@ import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { ProductContext } from "./ProductContext";
+import API from "./api";
 
-const API = "http://localhost:5000/api/products";
+const PRODUCTS_API = "/api/products";
 
 export default function AdminPage() {
   const { refreshProducts } = useContext(ProductContext);
@@ -30,8 +31,8 @@ export default function AdminPage() {
 
   function refresh() {
     setLoading(true);
-    axios
-      .get(API, {
+    API
+      .get(PRODUCTS_API, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => {
@@ -51,7 +52,7 @@ export default function AdminPage() {
         images: images.split(",").map((img) => img.trim()).filter(Boolean), // convert to array
         category: category.trim(),
       };
-      const { data } = await axios.post(API, payload, {
+      const { data } = await API.post(PRODUCTS_API, payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setItems((prev) => [...prev, data]);
@@ -77,7 +78,7 @@ export default function AdminPage() {
     formData.append("file", fileInput.files[0]);
 
     try {
-      await axios.post(`${API}/bulk-upload`, formData, {
+      await API.post(`${PRODUCTS_API}/bulk-upload`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",

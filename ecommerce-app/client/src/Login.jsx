@@ -126,6 +126,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import API from "./api";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -137,7 +138,7 @@ function Login() {
     e.preventDefault();
     try {
       const url = isRegister ? "/api/users/register" : "/api/users/login";
-      const { data } = await axios.post(`http://localhost:5000${url}`, { username, password });
+      const { data } = await API.post(url, { username, password });
       if (!isRegister) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.role);
