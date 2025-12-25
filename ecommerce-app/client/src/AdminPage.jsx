@@ -108,7 +108,7 @@ export default function AdminPage() {
         images: editImages.split(",").map((img) => img.trim()).filter(Boolean),
         category: editCategory.trim(),
       };
-      const { data } = await axios.put(`${API}/${id}`, payload, {
+      const { data } = await API.put(`${PRODUCTS_API}/${id}`, payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setItems((prev) => prev.map((it) => (it._id === id ? data : it)));
@@ -130,7 +130,7 @@ export default function AdminPage() {
   async function handleDelete(id) {
     if (!confirm("Delete this product?")) return;
     try {
-      await axios.delete(`${API}/${id}`, {
+      await API.delete(`${PRODUCTS_API}/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setItems((prev) => prev.filter((it) => it._id !== id));
