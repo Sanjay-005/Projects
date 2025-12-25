@@ -28,15 +28,18 @@ app.use(express.json());
 app.use("/api/search", searchRoutes);/** */
 app.use("/api/payment", paymentRoutes);
 
-mongoose
-  .connect(process.env.MONGO_URI, {//here we will connect with local MongoDB
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("MongoDB Connected Successfully");
-  })
-  .catch((err) => console.error("MongoDB Connection Error:", err));
+// mongoose
+//   .connect(process.env.MONGO_URI, {//here we will connect with local MongoDB
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   })
+//   .then(() => {
+//     console.log("MongoDB Connected Successfully");
+//   })
+//   .catch((err) => console.error("MongoDB Connection Error:", err));
+
+mongoose.connect(process.env.MONGO_URI);
+
 
 app.get("/", (req, res) => {
   res.send("E-commerce API is running...");
