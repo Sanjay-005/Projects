@@ -14,15 +14,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // app.use(cors());
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://ecommerce-3wxnr5k6j-sanjays-projects-6f044a2a.vercel.app/"
-    ],
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
+
 
 app.use(express.json());
 app.use("/api/search", searchRoutes);/** */
