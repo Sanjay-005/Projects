@@ -1,4 +1,5 @@
-E-commerce Web Application (MERN + Azure AI Search)
+E-commerce Web Application (MERN + Azure AI Search): 
+
 A full-stack E-Commerce Web Application built using the MERN stack with Azure AI Search integration for fast and intelligent product search, autocomplete suggestions, and filtering.
 The application supports role-based access control, admin product management, bulk uploads, and a secure authentication system.
 
