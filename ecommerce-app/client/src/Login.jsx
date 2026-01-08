@@ -212,17 +212,27 @@ function Login() {
     e.preventDefault();
 
     try {
-      const url = isRegister ? "/api/users/register" : "/api/users/login";
-      const { data } = await API.post(url, { username, password });
+      const url = isRegister
+        ? "/api/users/register"
+        : "/api/users/login";
 
-      if (!isRegister) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("role", data.role);
-        navigate("/");
-      } else {
+      const { data } = await API.post(url, {
+        username,
+        password
+      });
+
+      if (isRegister) {
         alert("Registered successfully. Please sign in.");
         setIsRegister(false);
+        return;
       }
+
+      // ✅ Save auth info
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
+
+      // ✅ Redirect to home
+      navigate("/");
     } catch (err) {
       alert(err.response?.data?.message || "Authentication failed");
     }
@@ -231,7 +241,9 @@ function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <h2 className="login-title">{isRegister ? "Sign Up" : "Sign In"}</h2>
+        <h2 className="login-title">
+          {isRegister ? "Sign Up" : "Sign In"}
+        </h2>
 
         <form onSubmit={handleSubmit} className="login-form">
           <input
@@ -241,6 +253,7 @@ function Login() {
             onChange={(e) => setUsername(e.target.value)}
             required
           />
+
           <input
             type="password"
             placeholder="Password"
@@ -248,16 +261,19 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
           <button type="submit" className="login-btn">
             {isRegister ? "Sign Up" : "Sign In"}
           </button>
         </form>
 
         <button
-          onClick={() => setIsRegister(!isRegister)}
           className="switch-btn"
+          onClick={() => setIsRegister(!isRegister)}
         >
-          {isRegister ? "Back to Sign In" : "Don't have an account? Sign Up"}
+          {isRegister
+            ? "Back to Sign In"
+            : "Don't have an account? Sign Up"}
         </button>
       </div>
     </div>
