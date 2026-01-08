@@ -116,6 +116,7 @@
 
 
 
+
 // import { useEffect, useState } from "react";
 // import { Routes, Route, Link, useLocation } from "react-router-dom";
 // import axios from "axios";
@@ -283,9 +284,8 @@
 
 
 
-
 import { useEffect, useState } from "react";
-import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import ProductsList from "./ProductsList";
 import ProductSearch from "./ProductSearch";
 import ProductDetails from "./ProductDetails";
@@ -302,27 +302,13 @@ import API from "./api";
 
 function App() {
   const [cart, setCart] = useState([]);
-  const [role, setRole] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const location = useLocation();
   const navigate = useNavigate();
 
-  /** ---------------- LOAD AUTH STATE ---------------- */
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const storedRole = localStorage.getItem("role");
+  /* ---------- AUTH (DERIVED FROM localStorage) ---------- */
+  const isAuthenticated = Boolean(localStorage.getItem("token"));
+  const role = localStorage.getItem("role");
 
-    if (token) {
-      setIsAuthenticated(true);
-      setRole(storedRole);
-    } else {
-      setIsAuthenticated(false);
-      setRole(null);
-    }
-  }, [location]);
-
-  /** ---------------- LOAD CART ---------------- */
+  /* ---------- LOAD CART ---------- */
   const loadCart = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -344,7 +330,7 @@ function App() {
     loadCart();
   }, [isAuthenticated]);
 
-  /** ---------------- CART HELPERS ---------------- */
+  /* ---------- CART HELPERS ---------- */
   const saveCart = async (newCart) => {
     setCart(newCart);
     const token = localStorage.getItem("token");
@@ -364,16 +350,9 @@ function App() {
     saveCart(cart.filter((_, i) => i !== index));
   const clearCart = () => saveCart([]);
 
-  /** ---------------- LOGOUT ---------------- */
+  /* ---------- LOGOUT ---------- */
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("cart");
-
-    setIsAuthenticated(false);
-    setRole(null);
-    setCart([]);
-
+    localStorage.clear();
     navigate("/");
   };
 
@@ -443,9 +422,18 @@ function App() {
 
         <Routes>
           <Route path="/" element={<ProductsList />} />
-          <Route path="/product/:id" element={<ProductDetails addToCart={addToCart} />} />
-          <Route path="/cart" element={<CartPage cart={cart} removeFromCart={removeFromCart} />} />
-          <Route path="/checkout" element={<CheckoutPage cart={cart} clearCart={clearCart} />} />
+          <Route
+            path="/product/:id"
+            element={<ProductDetails addToCart={addToCart} />}
+          />
+          <Route
+            path="/cart"
+            element={<CartPage cart={cart} removeFromCart={removeFromCart} />}
+          />
+          <Route
+            path="/checkout"
+            element={<CheckoutPage cart={cart} clearCart={clearCart} />}
+          />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/search" element={<SearchResults />} />
@@ -454,10 +442,44 @@ function App() {
           <Route path="/faq" element={<Faq />} />
         </Routes>
 
-        <footer className="footer">{/* unchanged */}</footer>
+        {/* ----- YOUR ORIGINAL FOOTER (RESTORED) ----- */}
+        <footer className="footer">
+          <div className="footer-container">
+            <div className="footer-section">
+              <h4>About</h4>
+              <ul>
+                <li><Link to="/about">About Us</Link></li>
+                <li><Link to="/contact">Contact Us</Link></li>
+              </ul>
+            </div>
+            <div className="footer-section">
+              <h4>Help</h4>
+              <ul>
+                <li><Link to="/faq">FAQ's</Link></li>
+              </ul>
+            </div>
+            <div className="footer-section">
+              <h4>Mail Us</h4>
+              <p>
+                My E-Commerce Pvt. Ltd.<br />
+                Elbaph,<br />
+                New World, Grand Line - 545454
+              </p>
+            </div>
+            <div className="footer-section">
+              <h4>Registered Office Address</h4>
+              <p>
+                My E-Commerce Pvt. Ltd.<br />
+                Elbaph,<br />
+                New World, Grand Line - 545454
+              </p>
+            </div>
+          </div>
+        </footer>
       </div>
     </ProductProvider>
   );
 }
 
 export default App;
+
