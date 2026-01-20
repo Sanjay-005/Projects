@@ -120,65 +120,81 @@ router.post("/", async (req, res) => {
     const lowerMsg = message.toLowerCase();
 
     // ---------------------------------------------------------
-    // 1. KEYWORD SEARCH
+    // 1. KEYWORD EXTRACTION
     // ---------------------------------------------------------
+    // Remove filler words to get the core terms (e.g., "i want teamspirit tshirt" -> "teamspirit tshirt")
     const keywords = lowerMsg.replace(/is|available|do|you|have|looking|for|show|me|buy|price|of|the|a|an|products|items/gi, "").trim();
     
     let foundProducts = [];
-    let isFallback = false; // Flag to track if we are showing "alternatives"
 
     if (keywords.length > 1) {
-      // Primary Search
+      // ---------------------------------------------------------
+      // 2. PRIMARY SEARCH (Specific)
+      // ---------------------------------------------------------
+      // Tries to find the whole phrase (e.g., "Teamspirit Tshirt")
       foundProducts = await Product.find({
         $or: [
           { name: { $regex: keywords, $options: "i" } },
           { category: { $regex: keywords, $options: "i" } }
         ]
       }).select("name price category").limit(4);
+
+      // ---------------------------------------------------------
+      // 3. RELAXED SEARCH (Category/Partial Match)
+      // ---------------------------------------------------------
+      // If specific search failed, split words and search individually.
+      // Example: "Teamspirit Tshirt" -> searches for "Teamspirit" OR "Tshirt"
+      if (foundProducts.length === 0) {
+        const words = keywords.split(" ").filter(w => w.length > 2); // Ignore short words like "is", "at"
+        
+        if (words.length > 0) {
+          // Create a regex that matches ANY of the words (e.g., /Teamspirit|Tshirt/i)
+          const regexPattern = words.join("|");
+          
+          foundProducts = await Product.find({
+            $or: [
+              { name: { $regex: regexPattern, $options: "i" } },
+              { category: { $regex: regexPattern, $options: "i" } }
+            ]
+          }).select("name price category").limit(4);
+        }
+      }
     }
 
-    // ---------------------------------------------------------
-    // 2. THE "SMART PIVOT" (Upselling Logic)
-    // ---------------------------------------------------------
-    // If the user asked for something valid (keywords exist) but we found NOTHING...
-    if (keywords.length > 1 && foundProducts.length === 0) {
-      isFallback = true;
-      // Fetch 3 random "Best Sellers" to show instead of an empty screen
-      // (In a real app, you might sort by popularity)
-      foundProducts = await Product.find().limit(3).select("name price category");
-    }
+    // REMOVED THE BLIND FALLBACK HERE 
+    // We deleted the lines that fetched random products if foundProducts was empty.
+    // Now, if foundProducts is empty, it stays empty.
 
     // ---------------------------------------------------------
-    // 3. CONSTRUCT AI CONTEXT
+    // 4. CONSTRUCT AI CONTEXT
     // ---------------------------------------------------------
     let inventoryContext = "";
     if (foundProducts.length > 0) {
       inventoryContext = foundProducts.map(p => `- ${p.name} (₹${p.price})`).join("\n");
     } else {
-      inventoryContext = "Store is completely empty.";
+      inventoryContext = "No matching products found in inventory.";
     }
 
     // ---------------------------------------------------------
-    // 4. SEND TO AI
+    // 5. SEND TO AI
     // ---------------------------------------------------------
     if (groq) {
       const systemPrompt = `
-        You are a smart sales assistant for "My E-Commerce" located in Elbaph, Grand Line.
+        You are a smart sales assistant for "My E-Commerce".
         
         CONTEXT:
         - User asked: "${message}"
-        - Products Found in Database: 
+        - Database Search Results: 
         ${inventoryContext}
-        - Is this a Fallback/Alternative List?: ${isFallback ? "YES" : "NO"}
 
         INSTRUCTIONS:
-        1. IF products matched exactly (Fallback=NO): Present them enthusiastically.
-        2. IF we found NO matches but are showing alternatives (Fallback=YES): 
-           - Say: "I couldn't find '${keywords}', but check out our popular items:"
-           - Do NOT pretend the alternatives are what the user asked for. Be honest.
-        3. IF the user asks about location/contact:
+        1. IF products were found: Present them enthusiastically. Say "Here is what we have related to your search:".
+        2. IF NO products were found: 
+           - You MUST say: "I'm sorry, we don't have that item in stock right now."
+           - Do NOT recommend random items.
+           - Do NOT apologize excessively.
+        3. If the user asks about location/contact:
            - Location: Elbaph, New World.
-           - Email: support@myecommerce.com.
         4. Keep it short (max 2 sentences).
       `;
 
@@ -192,19 +208,22 @@ router.post("/", async (req, res) => {
 
       return res.json({ 
         reply: completion.choices[0]?.message?.content,
-        products: foundProducts // The frontend will render these cards
+        products: foundProducts // This will be empty if no relevant products are found
       });
     }
 
-    // Fallback if AI is down
-    if (isFallback) {
+    // Fallback if AI is offline
+    if (foundProducts.length > 0) {
         return res.json({ 
-            reply: `We don't have "${keywords}", but here are some other items you might like:`, 
+            reply: `Here are the items matching "${keywords}":`, 
             products: foundProducts 
         });
+    } else {
+        return res.json({ 
+            reply: `Sorry, we don't have "${keywords}" in stock.`, 
+            products: [] 
+        });
     }
-
-    res.json({ reply: "I can help you find products.", products: [] });
 
   } catch (err) {
     console.error("Chat Error:", err);
