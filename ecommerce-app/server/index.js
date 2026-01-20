@@ -1,50 +1,92 @@
+// import express from "express";
+// import cors from "cors";
+// import dotenv from "dotenv";
+// import mongoose from "mongoose";
+// import searchRoutes from "./routes/searchRoutes.js";/** */
+// import productRoutes from "./routes/productRoutes.js";
+// import userRoutes from "./routes/userRoutes.js";
+// import orderRoutes from "./routes/orderRoutes.js";
+// import paymentRoutes from "./routes/paymentRoutes.js";
+
+// dotenv.config();
+
+// const app = express();
+// const PORT = process.env.PORT || 5000;
+
+// // app.use(cors());
+// app.use(cors({
+//   origin: true,
+//   credentials: true,
+// }));
+
+
+// app.use(express.json());
+// app.use("/api/search", searchRoutes);/** */
+// app.use("/api/payment", paymentRoutes);
+
+// // mongoose
+// //   .connect(process.env.MONGO_URI, {//here we will connect with local MongoDB
+// //     useNewUrlParser: true,
+// //     useUnifiedTopology: true,
+// //   })
+// //   .then(() => {
+// //     console.log("MongoDB Connected Successfully");
+// //   })
+// //   .catch((err) => console.error("MongoDB Connection Error:", err));
+
+// mongoose.connect(process.env.MONGO_URI);
+
+
+// app.get("/", (req, res) => {
+//   res.send("E-commerce API is running...");
+// });
+
+// app.use("/api/products", productRoutes);
+// app.use("/api/users", userRoutes);
+// app.use("/api/orders", orderRoutes);
+
+// mongoose.connection.once("open", () => {
+//   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));//here we connect the database before starting the server to prevent any api call to access database resulting in error before connecting the database
+// });
+
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import searchRoutes from "./routes/searchRoutes.js";/** */
+import searchRoutes from "./routes/searchRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js"; // <--- 1. NEW IMPORT
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// app.use(cors());
 app.use(cors({
   origin: true,
   credentials: true,
 }));
 
-
 app.use(express.json());
-app.use("/api/search", searchRoutes);/** */
-app.use("/api/payment", paymentRoutes);
 
-// mongoose
-//   .connect(process.env.MONGO_URI, {//here we will connect with local MongoDB
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//   })
-//   .then(() => {
-//     console.log("MongoDB Connected Successfully");
-//   })
-//   .catch((err) => console.error("MongoDB Connection Error:", err));
+// Routes
+app.use("/api/search", searchRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/chat", chatRoutes); // <--- 2. REGISTER NEW ROUTE
 
 mongoose.connect(process.env.MONGO_URI);
-
 
 app.get("/", (req, res) => {
   res.send("E-commerce API is running...");
 });
 
-app.use("/api/products", productRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/orders", orderRoutes);
-
 mongoose.connection.once("open", () => {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));//here we connect the database before starting the server to prevent any api call to access database resulting in error before connecting the database
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 });
