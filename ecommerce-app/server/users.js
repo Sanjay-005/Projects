@@ -1,3 +1,5 @@
+//ignore this file as this code is unused un our website!
+
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
