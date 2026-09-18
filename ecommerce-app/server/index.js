@@ -49,7 +49,7 @@
 //   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));//here we connect the database before starting the server to prevent any api call to access database resulting in error before connecting the database
 // });
 
-
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";

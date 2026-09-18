@@ -217,6 +217,9 @@ import {
   deleteProductFromSearch,
 } from "../utils/azureSearch.js";
 
+// ✅ Cloudinary helper (direct image upload for admin)
+import { uploadBufferToCloudinary } from "../utils/cloudinary.js";
+
 const router = express.Router();
 
 // ------------------
@@ -224,6 +227,51 @@ const router = express.Router();
 // ------------------
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+
+// Separate multer instance for direct image uploads — allows multiple files,
+// with a basic size/type guard so admins don't accidentally upload huge files.
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB per image
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
+
+// ------------------
+// Admin-only: Direct image upload (Cloudinary)
+// Accepts up to 6 images under field name "images", returns hosted URLs.
+// This is additive — does NOT replace the existing image-URL or bulk-Excel flows.
+// ------------------
+router.post(
+  "/upload-images",
+  protect,
+  admin,
+  imageUpload.array("images", 6),
+  async (req, res) => {
+    try {
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ message: "No images uploaded" });
+      }
+ 
+      const uploadResults = await Promise.all(
+        req.files.map((file) => uploadBufferToCloudinary(file.buffer))
+      );
+ 
+      const urls = uploadResults.map((result) => result.secure_url);
+ 
+      res.json({ urls });
+    } catch (err) {
+      console.error("Image upload error:", err);
+      res.status(500).json({ message: "Failed to upload images" });
+    }
+  }
+);
+
 
 // ------------------
 // Admin-only Bulk Upload

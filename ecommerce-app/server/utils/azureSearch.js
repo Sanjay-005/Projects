@@ -5,6 +5,10 @@ const endpoint = process.env.AZURE_SEARCH_ENDPOINT;
 const apiKey = process.env.AZURE_SEARCH_API_KEY;
 const indexName = process.env.AZURE_SEARCH_INDEX_NAME;
 
+console.log("Azure endpoint:", process.env.AZURE_SEARCH_ENDPOINT);
+console.log("Azure API key exists:", !!process.env.AZURE_SEARCH_API_KEY);
+console.log("Azure index:", process.env.AZURE_SEARCH_INDEX_NAME);
+
 if (!endpoint || !apiKey || !indexName) {
   throw new Error("Azure Search environment variables missing");
 }
