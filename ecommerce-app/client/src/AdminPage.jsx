@@ -262,6 +262,10 @@ export default function AdminPage() {
   const [price, setPrice] = useState("");
   const [images, setImages] = useState(""); // comma separated input
   const [category, setCategory] = useState("");
+  const [description, setDescription] = useState(""); // new: AI-generatable description
+
+  // --- New: AI description generation state (Add form) ---
+  const [generatingDesc, setGeneratingDesc] = useState(false);
 
   // --- New: direct image upload state (Add form) ---
   // This is additive — the "images" comma-separated string above is still the
@@ -275,6 +279,10 @@ export default function AdminPage() {
   const [editPrice, setEditPrice] = useState("");
   const [editImages, setEditImages] = useState("");
   const [editCategory, setEditCategory] = useState("");
+  const [editDescription, setEditDescription] = useState(""); // new
+
+  // --- New: AI description generation state (Edit form) ---
+  const [editGeneratingDesc, setEditGeneratingDesc] = useState(false);
 
   // --- New: direct image upload state (Edit form) ---
   const [editUploadFiles, setEditUploadFiles] = useState([]);
@@ -328,6 +336,29 @@ export default function AdminPage() {
       alert(err?.response?.data?.message || "Failed to upload images");
     } finally {
       setUploadingFlag(false);
+    }
+  }
+
+  // --- New: calls the Groq-powered backend route to generate a product
+  // description from name/category/price. Admin can still freely edit the
+  // result before saving — this just pre-fills the textarea.
+  async function generateDescription(nameVal, categoryVal, priceVal, setDescValue, setGeneratingFlag) {
+    if (!nameVal.trim() || !categoryVal.trim()) {
+      alert("Please fill in Name and Category first, then generate a description");
+      return;
+    }
+    setGeneratingFlag(true);
+    try {
+      const { data } = await API.post(
+        `${PRODUCTS_API}/generate-description`,
+        { name: nameVal, category: categoryVal, price: priceVal },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      setDescValue(data.description || "");
+    } catch (err) {
+      alert(err?.response?.data?.message || "Failed to generate description");
+    } finally {
+      setGeneratingFlag(false);
     }
   }
 
@@ -386,6 +417,7 @@ export default function AdminPage() {
     setEditPrice(String(p.price));
     setEditImages((p.images || []).join(", ")); // show as comma separated
     setEditCategory(p.category || "");
+    setEditDescription(p.description || "");
     setEditUploadFiles([]);
   }
 
@@ -396,6 +428,7 @@ export default function AdminPage() {
         price: Number(editPrice),
         images: editImages.split(",").map((img) => img.trim()).filter(Boolean),
         category: editCategory.trim(),
+        description: editDescription.trim(),
       };
       const { data } = await API.put(`${PRODUCTS_API}/${id}`, payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -414,6 +447,7 @@ export default function AdminPage() {
     setEditPrice("");
     setEditImages("");
     setEditCategory("");
+    setEditDescription("");
     setEditUploadFiles([]);
   }
 
@@ -493,6 +527,24 @@ export default function AdminPage() {
         </div>
 
         <input placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} required />
+                <div style={{ display: "grid", gap: 6 }}>
+          <textarea
+            placeholder="Description (optional — or generate with AI)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+          />
+          <button
+            type="button"
+            disabled={generatingDesc}
+            onClick={() =>
+              generateDescription(name, category, price, setDescription, setGeneratingDesc)
+            }
+          >
+            {generatingDesc ? "Generating…" : "✨ Generate Description"}
+          </button>
+        </div>
+
         <button type="submit">Add Product</button>
       </form>
 
@@ -565,6 +617,31 @@ export default function AdminPage() {
                     onChange={(e) => setEditCategory(e.target.value)}
                     required
                   />
+                  {/* New: AI-generated description for edit form — same pattern as Add form */}
+                  <div style={{ display: "grid", gap: 6 }}>
+                    <textarea
+                      placeholder="Description (optional — or generate with AI)"
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      rows={3}
+                    />
+                    <button
+                      type="button"
+                      disabled={editGeneratingDesc}
+                      onClick={() =>
+                        generateDescription(
+                          editName,
+                          editCategory,
+                          editPrice,
+                          setEditDescription,
+                          setEditGeneratingDesc
+                        )
+                      }
+                    >
+                      {editGeneratingDesc ? "Generating…" : "✨ Generate Description"}
+                    </button>
+                  </div>
+
                   <div style={{ display: "flex", gap: 8 }}>
                     <button type="button" onClick={() => saveEdit(p._id)}>
                       Save
@@ -591,6 +668,9 @@ export default function AdminPage() {
                   )}
                   <div>₹{p.price}</div>
                   <div>{p.category}</div>
+                  {p.description && (
+                    <div style={{ fontSize: 13, color: "#555" }}>{p.description}</div>
+                  )}
                   <div style={{ display: "flex", gap: 8 }}>
                     <button type="button" onClick={() => startEdit(p)}>Edit</button>
                     <button type="button" onClick={() => handleDelete(p._id)}>Delete</button>

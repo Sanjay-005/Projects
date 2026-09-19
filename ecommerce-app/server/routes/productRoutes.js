@@ -210,6 +210,7 @@ import Product from "../models/Product.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 import multer from "multer";
 import xlsx from "xlsx";
+import Groq from "groq-sdk";
 
 // ✅ Azure Search auto-sync helpers
 import {
@@ -221,6 +222,12 @@ import {
 import { uploadBufferToCloudinary } from "../utils/cloudinary.js";
 
 const router = express.Router();
+
+// Reuses the same GROQ_API_KEY already configured for the chatbot feature.
+let groq;
+if (process.env.GROQ_API_KEY) {
+  groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+}
 
 // ------------------
 // Bulk Upload Setup
@@ -271,6 +278,46 @@ router.post(
     }
   }
 );
+
+// ------------------
+// Admin-only: AI-generate a product description (Groq)
+// Takes name/category/price, returns a short description string.
+// Additive — admin can still type/edit their own description freely.
+// ------------------
+router.post("/generate-description", protect, admin, async (req, res) => {
+  try {
+    if (!groq) {
+      return res
+        .status(500)
+        .json({ message: "AI description generation is not configured" });
+    }
+ 
+    const { name, category, price } = req.body;
+    if (!name || !category) {
+      return res
+        .status(400)
+        .json({ message: "Name and category are required to generate a description" });
+    }
+ 
+    const prompt = `Write a short, compelling e-commerce product description (2-3 sentences, no markdown, no headings) for the following product:
+Name: ${name}
+Category: ${category}
+${price ? `Price: ₹${price}` : ""}
+Keep it persuasive but factual, suitable for an online store listing.`;
+ 
+    const completion = await groq.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "llama-3.3-70b-versatile",
+    });
+ 
+    const description = completion.choices[0]?.message?.content?.trim() || "";
+ 
+    res.json({ description });
+  } catch (err) {
+    console.error("Description generation error:", err);
+    res.status(500).json({ message: "Failed to generate description" });
+  }
+});
 
 
 // ------------------
