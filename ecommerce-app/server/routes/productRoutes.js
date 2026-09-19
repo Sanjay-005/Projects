@@ -307,7 +307,7 @@ Keep it persuasive but factual, suitable for an online store listing.`;
  
     const completion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
     });
  
     const description = completion.choices[0]?.message?.content?.trim() || "";
